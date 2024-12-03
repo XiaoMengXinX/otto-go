@@ -67,7 +67,7 @@ func pinyin(s string) []string {
 }
 
 func splitStr(s string) []string {
-	re := regexp.MustCompile(`(\p{Han}+)|[a-zA-Z0-9]+|(\[.*?])|(\p{P}+)|(\W+)`)
+	re := regexp.MustCompile(`(\p{Han})|([a-zA-Z0-9]+)|(\[.*?\])|(\p{P})|(\W)`)
 	return re.FindAllString(s, -1)
 }
 

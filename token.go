@@ -27,6 +27,9 @@ func processTokens(input []string) ([]string, error) {
 			}
 		}
 	}
+	for i := 0; i < 2; i++ {
+		inputFiles = append(inputFiles, "token/empty.wav")
+	}
 	return inputFiles, nil
 }
 

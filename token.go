@@ -1,7 +1,6 @@
 package otto
 
 import (
-	"fmt"
 	"github.com/go-ego/gpy"
 	"path/filepath"
 	"regexp"
@@ -9,10 +8,6 @@ import (
 )
 
 func processTokens(input []string) ([]string, error) {
-	if len(input) < 2 {
-		return nil, fmt.Errorf("invalid input string, at least two files are required")
-	}
-
 	var inputFiles []string
 	for _, fileName := range input {
 		if isYSDD(fileName) {

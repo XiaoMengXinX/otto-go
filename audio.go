@@ -8,9 +8,14 @@ import (
 )
 
 func mergeWAV(inputFiles []string) ([]byte, error) {
-	if len(inputFiles) < 2 {
-		return nil, fmt.Errorf("at least two input files are required for merging")
+	if len(inputFiles) == 1 {
+		singleFile, err := audioFS.ReadFile(inputFiles[0])
+		if err != nil {
+			return nil, fmt.Errorf("failed to read single WAV file: %s", err)
+		}
+		return singleFile, nil
 	}
+
 	var combinedBuffer *audio.IntBuffer
 	for i, inputFile := range inputFiles {
 		_, err := audioFS.Open(inputFile)

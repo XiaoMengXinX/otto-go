@@ -10,8 +10,6 @@ func GetOTTO(input string) ([]byte, error) {
 	var tokens []string
 	split := splitStr(replaceYSDD(input))
 
-	fmt.Println(split)
-
 	for _, s := range split {
 		if isChinese(s) {
 			for _, c := range pinyin(s) {
@@ -27,8 +25,6 @@ func GetOTTO(input string) ([]byte, error) {
 			}
 		}
 	}
-
-	fmt.Println(tokens)
 
 	inputFiles, err := processTokens(tokens)
 	if err != nil {

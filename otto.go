@@ -1,6 +1,7 @@
 package otto
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -9,19 +10,25 @@ func GetOTTO(input string) ([]byte, error) {
 	var tokens []string
 	split := splitStr(replaceYSDD(input))
 
+	fmt.Println(split)
+
 	for _, s := range split {
 		if isChinese(s) {
-			tokens = append(tokens, pinyin(s)...)
+			for _, c := range pinyin(s) {
+				tokens = append(tokens, fmt.Sprintf("(%s)", c))
+			}
 		} else {
-			if isYSDD(s) {
+			if isYSDD(s) || isSingle(s) {
 				tokens = append(tokens, s)
 			} else {
-				for _, s := range s {
-					tokens = append(tokens, string(s))
+				for _, c := range s {
+					tokens = append(tokens, string(c))
 				}
 			}
 		}
 	}
+
+	fmt.Println(tokens)
 
 	inputFiles, err := processTokens(tokens)
 	if err != nil {

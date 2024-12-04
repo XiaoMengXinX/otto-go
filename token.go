@@ -1,6 +1,7 @@
 package otto
 
 import (
+	"fmt"
 	"github.com/go-ego/gpy"
 	"path/filepath"
 	"regexp"
@@ -13,20 +14,22 @@ func processTokens(input []string) ([]string, error) {
 		if isYSDD(fileName) {
 			filePath := filepath.Join("token/multi", getYSDD(fileName)+".wav")
 			inputFiles = append(inputFiles, filePath)
-		}
-		trimmedFileName := strings.TrimSpace(fileName)
-		if trimmedFileName != "" {
-			if replacements, exists := dict[trimmedFileName]; exists {
-				for _, replacement := range replacements {
-					filePath := filepath.Join("token/single", replacement+".wav")
-					inputFiles = append(inputFiles, filePath)
-				}
-			} else {
-				filePath := filepath.Join("token/single", trimmedFileName+".wav")
+			continue
+		} else if isSingle(fileName) {
+			filePath := filepath.Join("token/single", getSingle(fileName)+".wav")
+			inputFiles = append(inputFiles, filePath)
+			continue
+		} else if replacements, exists := dict[fileName]; exists {
+			for _, replacement := range replacements {
+				filePath := filepath.Join("token/single", replacement+".wav")
 				inputFiles = append(inputFiles, filePath)
 			}
+		} else {
+			filePath := filepath.Join("token/single", fileName+".wav")
+			inputFiles = append(inputFiles, filePath)
 		}
 	}
+	fmt.Println(inputFiles)
 	for i := 0; i < 2; i++ {
 		inputFiles = append(inputFiles, "token/empty.wav")
 	}
@@ -34,26 +37,41 @@ func processTokens(input []string) ([]string, error) {
 }
 
 func replaceYSDD(s string) string {
-	for chinese, phrase := range ysddDict {
-		if strings.Contains(s, chinese) {
-			s = strings.ReplaceAll(s, chinese, phrase)
+	var m []string
+	for k, v := range ysddDict {
+		for _, value := range v {
+			m = append(m, value, fmt.Sprintf("[%s]", k))
 		}
 	}
-	return s
+	return strings.NewReplacer(m...).Replace(s)
 }
 
 func isYSDD(s string) bool {
-	for _, value := range ysddDict {
-		if value == s {
+	for k, _ := range ysddDict {
+		if fmt.Sprintf("[%s]", k) == s {
 			return true
 		}
 	}
 	return false
 }
 
-func getYSDD(input string) string {
+func isSingle(s string) bool {
+	re := regexp.MustCompile(`\((.*?)\)`)
+	return re.MatchString(s)
+}
+
+func getYSDD(s string) string {
 	re := regexp.MustCompile(`\[(.*?)\]`)
-	matches := re.FindStringSubmatch(input)
+	matches := re.FindStringSubmatch(s)
+	if len(matches) > 1 {
+		return matches[1]
+	}
+	return ""
+}
+
+func getSingle(s string) string {
+	re := regexp.MustCompile(`\((.*?)\)`)
+	matches := re.FindStringSubmatch(s)
 	if len(matches) > 1 {
 		return matches[1]
 	}
@@ -70,7 +88,7 @@ func pinyin(s string) []string {
 }
 
 func splitStr(s string) []string {
-	re := regexp.MustCompile(`(\p{Han})|([a-zA-Z0-9]+)|(\[.*?\])|(\p{P})|(\W)`)
+	re := regexp.MustCompile(`(\p{Han})|([a-zA-Z0-9]+)|(\[.*?\])|(\(.*?\))|(\p{P})|(\W)`)
 	return re.FindAllString(s, -1)
 }
 
